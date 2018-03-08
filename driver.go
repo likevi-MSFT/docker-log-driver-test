@@ -48,9 +48,13 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	}
 	d.mu.Unlock()
 
-	if logCtx.LogPath == "" {
-		logCtx.LogPath = filepath.Join("/var/log/docker", logCtx.ContainerID)
-	}
+	// logs are written to /var/log/docker/$ContainerId/application.log
+	// rotated to /var/log/docker/$ContainerId/application.x.log
+	// example:
+	// logs written to /var/log/docker/abc/application.log
+	// log rotated to  /var/log/docker/abc/application.1.log
+	logCtx.LogPath = filepath.Join("/var/log/docker", logCtx.ContainerID, "application.log")
+	
 	if err := os.MkdirAll(filepath.Dir(logCtx.LogPath), 0755); err != nil {
 		return errors.Wrap(err, "error setting up logger dir")
 	}
