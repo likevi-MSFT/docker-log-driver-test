@@ -1,0 +1,6 @@
+FROM  golang:1.7
+
+
+COPY . /go/src/sblogdriver
+
+RUN cd /go/src/sblogdriver && go get && go build --ldflags '-extldflags "-static"' -o /usr/bin/sblogdriver
