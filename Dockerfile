@@ -21,4 +21,5 @@ RUN go build -o /bin/project
 # This results in a single layer image
 FROM scratch
 COPY --from=build /bin/project /bin/sblogdriver
+RUN mkdir /run/docker/plugins
 ENTRYPOINT ["/bin/sblogdriver"]
