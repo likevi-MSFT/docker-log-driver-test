@@ -1,7 +1,7 @@
 {
 	"description": "jsonfilelog as plugin",
 	"documentation": "-",
-	"entrypoint": ["/usr/bin/sblogdriver"],
+	"entrypoint": ["/sblogdriver"],
 	"interface": {
 		"types": ["docker.logdriver/1.0"],
 		"socket": "jsonfile.sock"
