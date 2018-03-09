@@ -8,6 +8,8 @@ import (
 	"github.com/docker/go-plugins-helpers/sdk"
 )
 
+const pluginSocketAddress = "/run/docker/plugins/jsonfile.sock"
+
 var logLevels = map[string]logrus.Level{
 	"debug": logrus.DebugLevel,
 	"info":  logrus.InfoLevel,
@@ -29,7 +31,8 @@ func main() {
 
 	h := sdk.NewHandler(`{"Implements": ["LoggingDriver"]}`)
 	handlers(&h, newDriver())
-	if err := h.ServeUnix("jsonfile", 0); err != nil {
+	logrus.Infof("listening to plugin socket at %s", pluginSocketAddress)
+	if err := h.ServeUnix(pluginSocketAddress, 0); err != nil {
 		panic(err)
 	}
 }

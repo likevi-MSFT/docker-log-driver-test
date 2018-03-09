@@ -1,10 +1,11 @@
 FROM golang:1.10 AS build
 
 COPY . /go/src/sblogdriver
-RUN cd /go/src/sblogdriver && go get && go build -o /usr/bin/sblogdriver
+WORKDIR /go/src/sblogdriver
+RUN go get && go build --ldflags '-extldflags "-static"' -o /go/bin/sblogdriver
+CMD ["/go/bin/sblogdriver"]
 
-FROM alpine:3.7 
-COPY --from=build /usr/bin/sblogdriver /usr/bin/sblogdriver
-RUN mkdir -p run/docker/plugins
-ENTRYPOINT ["/usr/bin/sblogdriver"]
-CMD [""]
+FROM alpine
+RUN mkdir -p /run/docker/plugins /var/log/docker
+COPY --from=build /go/bin/sblogdriver .
+CMD ["sblogdriver"]
