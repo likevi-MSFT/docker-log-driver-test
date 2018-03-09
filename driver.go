@@ -105,7 +105,7 @@ func consumeLog(lf *logPair) {
 	for {
 		if !lf.unsafeAliveFlag {
 			logrus.WithField("id", lf.info.ContainerID).Infof("shutting down log logger due to alive flag")
-			lf.steam.Close()
+			lf.stream.Close()
 			logrus.WithField("id", lf.info.ContainerID).Infof("log logger shut downed due to alive flag")
 			return
 		}
