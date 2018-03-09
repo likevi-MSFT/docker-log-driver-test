@@ -28,9 +28,10 @@ type driver struct {
 }
 
 type logPair struct {
-	l      logger.Logger
-	stream io.ReadCloser
-	info   logger.Info
+	l               logger.Logger
+	stream          io.ReadCloser
+	info            logger.Info
+	unsafeAliveFlag bool
 }
 
 func newDriver() *driver {
@@ -44,6 +45,8 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	d.mu.Lock()
 	if _, exists := d.logs[file]; exists {
 		d.mu.Unlock()
+		logrus.WithField("id", logCtx.ContainerID).WithField("file", file).WithField("logpath", logCtx.LogPath).Debugf(fmt.Sprintf("logger for %s already exists", file))
+
 		return fmt.Errorf("logger for %q already exists", file)
 	}
 	d.mu.Unlock()
@@ -54,7 +57,7 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	// logs written to /var/log/docker/abc/application.log
 	// log rotated to  /var/log/docker/abc/application.1.log
 	logCtx.LogPath = filepath.Join("/var/log/docker", logCtx.ContainerID, "application.log")
-	
+
 	if err := os.MkdirAll(filepath.Dir(logCtx.LogPath), 0755); err != nil {
 		return errors.Wrap(err, "error setting up logger dir")
 	}
@@ -70,7 +73,7 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	}
 
 	d.mu.Lock()
-	lf := &logPair{l, f, logCtx}
+	lf := &logPair{l, f, logCtx, true}
 	d.logs[file] = lf
 	d.idx[logCtx.ContainerID] = lf
 	d.mu.Unlock()
@@ -80,12 +83,18 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 }
 
 func (d *driver) StopLogging(file string) error {
-	logrus.WithField("file", file).Debugf("Stop logging")
+	logrus.WithField("file", file).Debugf(fmt.Sprintf("Stop logging %s", file))
 	d.mu.Lock()
 	lf, ok := d.logs[file]
 	if ok {
+		lf.unsafeAliveFlag = false
 		lf.stream.Close()
 		delete(d.logs, file)
+		logrus.WithField("file", file).Debugf(fmt.Sprintf("Logging stream closed for %s", file))
+	} else {
+		logrus.WithField("file", file).Errorf(fmt.Sprintf("Logging stream did not closed for %s", file))
+		d.mu.Unlock()
+		return ok
 	}
 	d.mu.Unlock()
 	return nil
@@ -96,9 +105,16 @@ func consumeLog(lf *logPair) {
 	defer dec.Close()
 	var buf logdriver.LogEntry
 	for {
+		if !lf.unsafeAliveFlag {
+			logrus.WithField("id", lf.info.ContainerID).WithError(err).Infof("shutting down log logger due to alive flag")
+			lf.steam.Close()
+			logrus.WithField("id", lf.info.ContainerID).WithError(err).Infof("log logger shut downed due to alive flag")
+			return
+		}
+
 		if err := dec.ReadMsg(&buf); err != nil {
 			if err == io.EOF {
-				logrus.WithField("id", lf.info.ContainerID).WithError(err).Debug("shutting down log logger")
+				logrus.WithField("id", lf.info.ContainerID).WithError(err).Debugf("shutting down log logger")
 				lf.stream.Close()
 				return
 			}
