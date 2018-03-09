@@ -18,19 +18,12 @@ var logLevels = map[string]logrus.Level{
 }
 
 func main() {
-	levelVal := os.Getenv("LOG_LEVEL")
-	if levelVal == "" {
-		levelVal = "info"
-	}
-	if level, exists := logLevels[levelVal]; exists {
-		logrus.SetLevel(level)
-	} else {
-		fmt.Fprintln(os.Stderr, "invalid log level: ", levelVal)
-		os.Exit(1)
-	}
+	logrus.SetLevel(logrus.DebugLevel)
+	logrus.Infof("Logger started")
 
 	h := sdk.NewHandler(`{"Implements": ["LoggingDriver"]}`)
 	handlers(&h, newDriver())
+
 	logrus.Infof("listening to plugin socket at %s", pluginSocketAddress)
 	if err := h.ServeUnix(pluginSocketAddress, 0); err != nil {
 		panic(err)

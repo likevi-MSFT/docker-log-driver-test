@@ -6,14 +6,6 @@
 		"types": ["docker.logdriver/1.0"],
 		"socket": "jsonfile.sock"
 	},
-        "mounts" :[
-		{
-			"destination": "/var/log/docker",
-			"source": "/var/log/docker",
-			"type": "bind",
-			"options": ["rbind", "rw"]
-		}
-	],
 	"env": [
 		{
 			"name": "LOG_LEVEL",
