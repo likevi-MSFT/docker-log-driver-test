@@ -92,9 +92,7 @@ func (d *driver) StopLogging(file string) error {
 		delete(d.logs, file)
 		logrus.WithField("file", file).Debugf(fmt.Sprintf("Logging stream closed for %s", file))
 	} else {
-		logrus.WithField("file", file).Errorf(fmt.Sprintf("Logging stream did not closed for %s", file))
-		d.mu.Unlock()
-		return ok
+		logrus.WithField("file", file).Errorf(fmt.Sprintf("Logging stream did not closed for %s. No such file was found.", file))
 	}
 	d.mu.Unlock()
 	return nil
@@ -106,9 +104,9 @@ func consumeLog(lf *logPair) {
 	var buf logdriver.LogEntry
 	for {
 		if !lf.unsafeAliveFlag {
-			logrus.WithField("id", lf.info.ContainerID).WithError(err).Infof("shutting down log logger due to alive flag")
+			logrus.WithField("id", lf.info.ContainerID).Infof("shutting down log logger due to alive flag")
 			lf.steam.Close()
-			logrus.WithField("id", lf.info.ContainerID).WithError(err).Infof("log logger shut downed due to alive flag")
+			logrus.WithField("id", lf.info.ContainerID).Infof("log logger shut downed due to alive flag")
 			return
 		}
 
