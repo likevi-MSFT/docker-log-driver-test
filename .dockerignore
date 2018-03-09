@@ -1,0 +1,7 @@
+myplugin/
+build.sh
+installplugin.sh
+config.json
+LICENSE
+README.md
+.gitignore
