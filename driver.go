@@ -61,7 +61,7 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	if fileInfo, err := os.Stat(logCtx.ContainerLabels[logBasePathLabelName]); err != nil {
 		logrus.WithField("logpath", logCtx.ContainerLabels[logBasePathLabelName]).WithField("error", err).Errorf("Error with provided base path.")
 		return err
-	} else if !os.IsDir(fileInfo.Mode) {
+	} else if !fileInfo.Mode().IsDir() {
 		logrus.WithField("logpath", logCtx.ContainerLabels[logBasePathLabelName]).Errorf("Error with provided base path. It is not a path.")
 		return errors.New("Provided log path is not a directory.")
 	}
