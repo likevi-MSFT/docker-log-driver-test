@@ -41,6 +41,10 @@ func newDriver() *driver {
 	}
 }
 
+const logBasePathLabelName = "loggerPath"
+const customerContainerLabelName = "customerContainerName"
+const anotherLabelName = "anotherLabel"
+
 func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	d.mu.Lock()
 	if _, exists := d.logs[file]; exists {
@@ -51,12 +55,23 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	}
 	d.mu.Unlock()
 
-	// logs are written to /var/log/docker/$ContainerId/application.log
-	// rotated to /var/log/docker/$ContainerId/application.x.log
+	// ensure the full path provided by labels exists.
+	// While we are sure that the path mounted to the log driver exists, the base path can
+	// contain sub directories below that path so we have to check that they exist
+	if fileInfo, err := os.Stat(logCtx.ContainerLabels[logBasePathLabelName]); err != nil {
+		logrus.WithField("logpath", logCtx.ContainerLabels[logBasePathLabelName]).WithField("error", err).Errorf("Error with provided base path.")
+		return err
+	} else if !os.IsDir(fileInfo.Mode) {
+		logrus.WithField("logpath", logCtx.ContainerLabels[logBasePathLabelName]).Errorf("Error with provided base path. It is not a path.")
+		return errors.New("Provided log path is not a directory.")
+	}
+
+	// logs are written to /mnt/docker/logdriver/logs/$ContainerId/application.log
+	// rotated to /mnt/docker/logdriver/logs/$ContainerId/application.x.log
 	// example:
-	// logs written to /var/log/docker/abc/application.log
-	// log rotated to  /var/log/docker/abc/application.1.log
-	logCtx.LogPath = filepath.Join("/var/log/docker", logCtx.ContainerID, "application.log")
+	// logs written to /mnt/docker/logdriver/logs/abc/application.log
+	// log rotated to  /mnt/docker/logdriver/logs/abc/application.1.log
+	logCtx.LogPath = filepath.Join(logCtx.ContainerLabels[logBasePathLabelName], logCtx.ContainerLabels[customerContainerLabelName], logCtx.ContainerLabels[anotherLabelName],"application.log")
 
 	if err := os.MkdirAll(filepath.Dir(logCtx.LogPath), 0755); err != nil {
 		return errors.Wrap(err, "error setting up logger dir")

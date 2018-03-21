@@ -8,8 +8,8 @@
 	},
 	"mounts": [
 		{
-			"source": "/mnt/sblogdriver/logs",
-			"destination": "/var/log/docker",
+			"source": "/mnt/docker/logdriver/logs",
+			"destination": "/mnt/docker/logdriver/logs",
 			"type": "bind",
 			"options": ["rbind", "rw"]
 		}
