@@ -41,9 +41,10 @@ func newDriver() *driver {
 	}
 }
 
-const logBasePathLabelName = "loggerPath"
-const customerContainerLabelName = "customerContainerName"
-const anotherLabelName = "anotherLabel"
+const logBasePathLabelName = "logRoot"
+const partitionIdLabelName = "partitionId";
+const instanceIdLabelName = "instanceId";
+const codePackageLabelName = "codePackage";
 
 func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	d.mu.Lock()
@@ -71,7 +72,7 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	// example:
 	// logs written to /mnt/docker/logdriver/logs/abc/application.log
 	// log rotated to  /mnt/docker/logdriver/logs/abc/application.1.log
-	logCtx.LogPath = filepath.Join(logCtx.ContainerLabels[logBasePathLabelName], logCtx.ContainerLabels[customerContainerLabelName], logCtx.ContainerLabels[anotherLabelName],"application.log")
+	logCtx.LogPath = filepath.Join(logCtx.ContainerLabels[logBasePathLabelName], logCtx.ContainerLabels[partitionIdLabelName], logCtx.ContainerLabels[instanceIdLabelName], logCtx.ContainerLabels[codePackageLabelName], "application.log")
 
 	if err := os.MkdirAll(filepath.Dir(logCtx.LogPath), 0755); err != nil {
 		return errors.Wrap(err, "error setting up logger dir")

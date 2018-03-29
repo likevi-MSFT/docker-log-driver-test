@@ -8,8 +8,8 @@
 	},
 	"mounts": [
 		{
-			"source": "/mnt/docker/logdriver/logs",
-			"destination": "/mnt/docker/logdriver/logs",
+			"source": "/mnt/logs",
+			"destination": "/mnt/logs",
 			"type": "bind",
 			"options": ["rbind", "rw"]
 		}
