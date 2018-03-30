@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -69,7 +70,7 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	}
 
 	// logs are written to /mnt/logs/$ApplicationName/$PartitionId/$InstanceId/$CodePackageName/application.log
-	var splitApplicationNameList := strings.Split(logCtx.ContainerLabels[applicationLabelName], "\\");
+	splitApplicationNameList := strings.Split(logCtx.ContainerLabels[applicationLabelName], "\\");
 	logCtx.LogPath = filepath.Join(
 		logCtx.ContainerLabels[logBasePathLabelName],
 		splitApplicationNameList[len(splitApplicationNameList)-1],
