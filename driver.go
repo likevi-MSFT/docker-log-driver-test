@@ -42,9 +42,10 @@ func newDriver() *driver {
 }
 
 const logBasePathLabelName = "logRoot"
-const partitionIdLabelName = "partitionId";
-const instanceIdLabelName = "instanceId";
-const codePackageLabelName = "codePackage";
+const partitionIdLabelName = "PartitionId";
+const instanceIdLabelName = "ServicePackageActivationId";
+const codePackageLabelName = "CodePackageName";
+const applicationLabelName = "ApplicationName";
 
 func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	d.mu.Lock()
@@ -67,12 +68,15 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 		return errors.New("Provided log path is not a directory.")
 	}
 
-	// logs are written to /mnt/docker/logdriver/logs/$ContainerId/application.log
-	// rotated to /mnt/docker/logdriver/logs/$ContainerId/application.x.log
-	// example:
-	// logs written to /mnt/docker/logdriver/logs/abc/application.log
-	// log rotated to  /mnt/docker/logdriver/logs/abc/application.1.log
-	logCtx.LogPath = filepath.Join(logCtx.ContainerLabels[logBasePathLabelName], logCtx.ContainerLabels[partitionIdLabelName], logCtx.ContainerLabels[instanceIdLabelName], logCtx.ContainerLabels[codePackageLabelName], "application.log")
+	// logs are written to /mnt/logs/$ApplicationName/$PartitionId/$InstanceId/$CodePackageName/application.log
+	var splitApplicationNameList := strings.Split(logCtx.ContainerLabels[applicationLabelName], "\\");
+	logCtx.LogPath = filepath.Join(
+		logCtx.ContainerLabels[logBasePathLabelName],
+		splitApplicationNameList[len(splitApplicationNameList)-1],
+		logCtx.ContainerLabels[partitionIdLabelName],
+		logCtx.ContainerLabels[instanceIdLabelName],
+		logCtx.ContainerLabels[codePackageLabelName],
+		"application.log")
 
 	if err := os.MkdirAll(filepath.Dir(logCtx.LogPath), 0755); err != nil {
 		return errors.Wrap(err, "error setting up logger dir")

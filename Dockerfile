@@ -8,6 +8,6 @@ RUN go get && go build -o /sblogdriver
 FROM alpine:latest AS finalimage
 WORKDIR /
 COPy --from=build /sblogdriver .
-RUN mkdir -p /run/docker/plugins /var/log/docker /mnt/docker/logdriver/logs
+RUN mkdir -p /run/docker/plugins /var/log/docker /mnt/logs
 
 CMD ["/sblogdriver"]
