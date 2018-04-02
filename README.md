@@ -2,7 +2,7 @@
 
 SBLogDriver is a Docker log driver plugin that writes JSON logs to a shared mount.
 * Captures stdin/stderr and write to file in JSON format
-* Writes logs to shared mount on host (/mnt/sblogdriver/logs)
+* Writes logs to shared mount on host (/mnt/logs)
 * Roll over logs at file size limit (--log-opt max-size=1m)
 * Limits log file count by container (--log-opt max-file=5)
 * Supports reading back of logs through `docker logs $container.id`
@@ -17,6 +17,8 @@ Docker API ^1.26
 
 User may need to be part of the docker group
 usermod -aG docker <username>
+
+path /run/docker/plugins/ must be on host machine (location of the jsonfile.sock required by plugins)
 ```
 ## Build
 ```
@@ -34,7 +36,7 @@ sudo sh installplugin.sh
 
 docker plugin ls
 # ID               NAME                   DESCRIPTION                ENABLED
-# eb57d2de3f20     sblogdriver:latest     jsonfile log as plugin     true
+# eb57d2de3f20     likevi/sblogdriver:1.1     jsonfile log as plugin     true
 ```
 
 ## Usage
@@ -43,15 +45,15 @@ docker plugin ls
 docker run -d --log-driver likevi/sblogdriver:1.1 [OPTIONS] <image_name>
 
 # Logs will output to host at /mnt/logs/<application.name>/<container.id>/<partition.id>/<instance.Id>/<codepackage.Name>/application.log
-# Logs will roll over to /mnt/logs/<application.name>/<container.id>/<partition.id>/<instance.Id>/<codepackage.Name>/application.loglog.1
+# Logs will roll over to /mnt/logs/<application.name>/<container.id>/<partition.id>/<instance.Id>/<codepackage.Name>/application.log.1
 ```
 
 ## Uninstall
 ```
 # First stop all containers using the plugin.
 
-docker plugin disable sblogdriver:latest
-docker plugin rm sblogdriver:latest
+docker plugin disable likevi/sblogdriver:1.1
+docker plugin rm likevi/sblogdriver:latest
 ```
 
 See [JSON file loggin driver](https://docs.docker.com/config/containers/logging/json-file/) for supported options related to the log driver.
