@@ -6,7 +6,7 @@ SBLogDriver is a Docker log driver plugin that writes JSON logs to a shared moun
 * Roll over logs at file size limit (--log-opt max-size=1m)
 * Limits log file count by container (--log-opt max-file=5)
 * Supports reading back of logs through `docker logs $container.id`
-* Supports custom static data inclusion in logs via labels 
+* Supports custom static data inclusion in logs via labels
 
 # Get Started
 ## Requirements
@@ -40,10 +40,10 @@ docker plugin ls
 ## Usage
 ```
 # Start a detached container with SBLogDriver as the log driver
-docker run -d --log-driver sblogdriver:latest [OPTIONS] <image_name>
+docker run -d --log-driver likevi/sblogdriver:1.1 [OPTIONS] <image_name>
 
-# Logs will output to host at /mnt/sblogdriver/logs/<container.id>/application.log
-# Logs will roll over to /mnt/sblogdriver/logs/<container.id>/application.log.1
+# Logs will output to host at /mnt/logs/<application.name>/<container.id>/<partition.id>/<instance.Id>/<codepackage.Name>/application.log
+# Logs will roll over to /mnt/logs/<application.name>/<container.id>/<partition.id>/<instance.Id>/<codepackage.Name>/application.loglog.1
 ```
 
 ## Uninstall
