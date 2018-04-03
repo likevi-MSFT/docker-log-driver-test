@@ -35,7 +35,7 @@ ls myplugin
 sudo sh installplugin.sh
 
 docker plugin ls
-# ID               NAME                   DESCRIPTION                ENABLED
+# ID               NAME                       DESCRIPTION                ENABLED
 # eb57d2de3f20     likevi/sblogdriver:1.1     jsonfile log as plugin     true
 ```
 
