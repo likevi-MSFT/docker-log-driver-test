@@ -48,6 +48,8 @@ const instanceIdLabelName = "ServicePackageActivationId";
 const codePackageLabelName = "CodePackageName";
 const applicationLabelName = "ApplicationName";
 
+const logBasePathDefault = "/mnt/logs"
+
 func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	d.mu.Lock()
 	if _, exists := d.logs[file]; exists {
@@ -58,21 +60,31 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	}
 	d.mu.Unlock()
 
+
+	var	basePath = logCtx.ContainerLabels[logBasePathLabelName]
 	// ensure the full path provided by labels exists.
 	// While we are sure that the path mounted to the log driver exists, the base path can
 	// contain sub directories below that path so we have to check that they exist
-	if fileInfo, err := os.Stat(logCtx.ContainerLabels[logBasePathLabelName]); err != nil {
-		logrus.WithField("logpath", logCtx.ContainerLabels[logBasePathLabelName]).WithField("error", err).Errorf("Error with provided base path.")
-		return err
-	} else if !fileInfo.Mode().IsDir() {
-		logrus.WithField("logpath", logCtx.ContainerLabels[logBasePathLabelName]).Errorf("Error with provided base path. It is not a path.")
-		return errors.New("Provided log path is not a directory.")
+	if (len(logCtx.ContainerLabels[logBasePathLabelName].trim()) > 0)
+	{
+		if fileInfo, err := os.Stat(logCtx.ContainerLabels[logBasePathLabelName]); err != nil {
+			logrus.WithField("logpath", logCtx.ContainerLabels[logBasePathLabelName]).WithField("error", err).Errorf("Error with provided base path.")
+			return err
+		} else if !fileInfo.Mode().IsDir() {
+			logrus.WithField("logpath", logCtx.ContainerLabels[logBasePathLabelName]).Errorf("Error with provided base path. It is not a path.")
+			return errors.New("Provided log path is not a directory.")
+		}
+	}
+	else
+	{
+		logrus.Warningf("Log driver base path label is not set on the container. Will use the base path of /mnt/logs")
+		basePath = logBasePathDefault
 	}
 
 	// logs are written to /mnt/logs/$ApplicationName/$PartitionId/$InstanceId/$CodePackageName/application.log
 	splitApplicationNameList := strings.Split(logCtx.ContainerLabels[applicationLabelName], "\\");
 	logCtx.LogPath = filepath.Join(
-		logCtx.ContainerLabels[logBasePathLabelName],
+		basePath,
 		splitApplicationNameList[len(splitApplicationNameList)-1],
 		logCtx.ContainerLabels[partitionIdLabelName],
 		logCtx.ContainerLabels[instanceIdLabelName],
