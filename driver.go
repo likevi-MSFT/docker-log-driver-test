@@ -42,7 +42,7 @@ func newDriver() *driver {
 	}
 }
 
-const logBasePathLabelName = "logRoot"
+const logBasePathLabelName = "LogRootPath"
 const partitionIdLabelName = "PartitionId";
 const instanceIdLabelName = "ServicePackageActivationId";
 const codePackageLabelName = "CodePackageName";
