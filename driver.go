@@ -50,6 +50,12 @@ const applicationLabelName = "ApplicationName";
 
 const logBasePathDefault = "/mnt/logs"
 
+const jsonfileLogOptionMaxFileSizeName = "max-size";
+const jsonfileLogOptionMaxFileCountName = "max-file";
+
+const jsonfileLogOptionMaxFileSizeDefault = "1m";
+const jsonfileLogOptionMaxFileCountDefault = "50";
+
 func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	d.mu.Lock()
 	if _, exists := d.logs[file]; exists {
@@ -91,6 +97,16 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 	if err := os.MkdirAll(filepath.Dir(logCtx.LogPath), 0755); err != nil {
 		return errors.Wrap(err, "error setting up logger dir")
 	}
+
+	// set default file options to 50 files of 1m each if no value is set.
+	if _, exists := logCtx.Config[jsonfileLogOptionMaxFileSizeName]; !exists {
+		logCtx.Config[jsonfileLogOptionMaxFileSizeName] = jsonfileLogOptionMaxFileSizeDefault
+	}
+
+	if _, exists := logCtx.Config[jsonfileLogOptionMaxFileCountName]; !exists {
+		logCtx.Config[jsonfileLogOptionMaxFileSizeName] = jsonfileLogOptionMaxFileCountDefault
+	}
+
 	l, err := jsonfilelog.New(logCtx)
 	if err != nil {
 		return errors.Wrap(err, "error creating jsonfile logger")

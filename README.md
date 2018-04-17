@@ -3,8 +3,8 @@
 SBLogDriver is a Docker log driver plugin that writes JSON logs to a shared mount.
 * Captures stdin/stderr and write to file in JSON format
 * Writes logs to shared mount on host (/mnt/logs)
-* Roll over logs at file size limit (--log-opt max-size=1m)
-* Limits log file count by container (--log-opt max-file=5)
+* Roll over logs at file size limit (--log-opt max-size=1m) (Defaults to 1m)
+* Limits log file count by container (--log-opt max-file=5) (Defaults to 50 files)
 * Supports reading back of logs through `docker logs $container.id`
 * Supports custom static data inclusion in logs via labels
 
