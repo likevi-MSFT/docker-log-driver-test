@@ -165,9 +165,9 @@ func consumeLog(lf *logPair) {
 			dec = protoio.NewUint32DelimitedReader(lf.stream, binary.BigEndian, 1e6)
 		}
 		var msg logger.Message
-		msg.Line = append(buf.Line, ("," + lf.info.ContainerLabels[applicationLabelName] + "," + lf.info.ContainerLabels[codePackageLabelName])...)
+		msg.Line = buf.Line
 		msg.Source = buf.Source
-		msg.Partial = buf.Partial
+		msg.PLogMetaData.LastPartial = false
 		msg.Timestamp = time.Unix(0, buf.TimeNano)
 
 		if err := lf.l.Log(&msg); err != nil {
