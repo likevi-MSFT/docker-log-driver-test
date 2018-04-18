@@ -167,7 +167,7 @@ func consumeLog(lf *logPair) {
 		var msg logger.Message
 		msg.Line = buf.Line
 		msg.Source = buf.Source
-		msg.PLogMetaData.LastPartial = false
+		msg.PLogMetaData = nil
 		msg.Timestamp = time.Unix(0, buf.TimeNano)
 
 		if err := lf.l.Log(&msg); err != nil {
@@ -210,7 +210,7 @@ func (d *driver) ReadLogs(info logger.Info, config logger.ReadConfig) (io.ReadCl
 				}
 
 				buf.Line = msg.Line
-				buf.Partial = msg.Partial
+				buf.Partial = (msg.PLogMetaData != nil)
 				buf.TimeNano = msg.Timestamp.UnixNano()
 				buf.Source = msg.Source
 
