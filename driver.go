@@ -46,6 +46,7 @@ const logBasePathLabelName = "LogRootPath"
 const partitionIdLabelName = "PartitionId";
 const instanceIdLabelName = "ServicePackageActivationId";
 const codePackageLabelName = "CodePackageName";
+const codePackageInstanceLabelName = "CodePackageInstance";
 const digestedApplicationLabelName = "DigestedApplicationName";
 
 const logBasePathDefault = "/mnt/logs"
@@ -84,13 +85,14 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 		basePath = logBasePathDefault
 	}
 
-	// logs are written to /mnt/logs/$ApplicationName/$PartitionId/$InstanceId/$CodePackageName/application.log
+	// logs are written to /mnt/logs/$ApplicationName/$PartitionId/$InstanceId/$CodePackageName/$number/application.log
 	logCtx.LogPath = filepath.Join(
 		basePath,
 		logCtx.ContainerLabels[digestedApplicationLabelName],
 		logCtx.ContainerLabels[partitionIdLabelName],
 		logCtx.ContainerLabels[instanceIdLabelName],
 		logCtx.ContainerLabels[codePackageLabelName],
+		logCtx.ContainerLabels[codePackageInstanceLabelName],
 		"application.log")
 
 	if err := os.MkdirAll(filepath.Dir(logCtx.LogPath), 0755); err != nil {
