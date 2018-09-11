@@ -49,6 +49,8 @@ const codePackageLabelName = "CodePackageName";
 const codePackageInstanceLabelName = "CodePackageInstance";
 const digestedApplicationLabelName = "DigestedApplicationName";
 
+const codepackagesFolderName = "codepackages";
+
 const logBasePathDefault = "/mnt/logs"
 
 const jsonfileLogOptionMaxFileSizeName = "max-size";
@@ -85,12 +87,13 @@ func (d *driver) StartLogging(file string, logCtx logger.Info) error {
 		basePath = logBasePathDefault
 	}
 
-	// logs are written to /mnt/logs/$ApplicationName/$PartitionId/$InstanceId/$CodePackageName/$number/application.log
+	// logs are written to /mnt/logs/$ApplicationName/$PartitionId/$InstanceId/codepackages/$CodePackageName/$number/application.log
 	logCtx.LogPath = filepath.Join(
 		basePath,
 		logCtx.ContainerLabels[digestedApplicationLabelName],
 		logCtx.ContainerLabels[partitionIdLabelName],
 		logCtx.ContainerLabels[instanceIdLabelName],
+		codepackagesFolderName,
 		logCtx.ContainerLabels[codePackageLabelName],
 		logCtx.ContainerLabels[codePackageInstanceLabelName],
 		"application.log")
