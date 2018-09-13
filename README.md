@@ -1,4 +1,6 @@
 ﻿# SBLogDriver
+ 
+Latest version 1.5
 
 SBLogDriver is a Docker log driver plugin that writes JSON logs to a shared mount.
 * Captures stdin/stderr and write to file in JSON format
@@ -36,24 +38,24 @@ sudo sh installplugin.sh
 
 docker plugin ls
 # ID               NAME                       DESCRIPTION                ENABLED
-# eb57d2de3f20     likevi/sblogdriver:1.1     jsonfile log as plugin     true
+# eb57d2de3f20     likevi/sblogdriver:1.5     jsonfile log as plugin     true
 ```
 
 ## Usage
 ```
 # Start a detached container with SBLogDriver as the log driver
-docker run -d --log-driver likevi/sblogdriver:1.1 [OPTIONS] <image_name>
+docker run -d --log-driver likevi/sblogdriver:1.5 [OPTIONS] <image_name>
 
-# Logs will output to host at /mnt/logs/<application.name>/<container.id>/<partition.id>/<instance.Id>/<codepackage.Name>/application.log
-# Logs will roll over to /mnt/logs/<application.name>/<container.id>/<partition.id>/<instance.Id>/<codepackage.Name>/application.log.1
+# Logs will output to host at /mnt/logs/<application.name>/<container.id>/<partition.id>/<instance.Id>/codepackages/<codepackage.Name>/<codepackage.InstanceId>/application.log
+# Logs will roll over to /mnt/logs/<application.name>/<container.id>/<partition.id>/<instance.Id>/codepackages/<codepackage.Name>/<codepackage.InstanceId>/application.log.1
 ```
 
 ## Uninstall
 ```
 # First stop all containers using the plugin.
 
-docker plugin disable likevi/sblogdriver:1.1
-docker plugin rm likevi/sblogdriver:latest
+docker plugin disable likevi/sblogdriver:1.5
+docker plugin rm likevi/sblogdriver:1.5
 ```
 
 See [JSON file loggin driver](https://docs.docker.com/config/containers/logging/json-file/) for supported options related to the log driver.
